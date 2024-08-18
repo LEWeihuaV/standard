@@ -54,6 +54,8 @@ protected:
 //Attributes
 protected:
 	CColoredShapes* m_pcoloredshapeList;
+public:
+	afx_msg void OnCadChfi2d();
 };
 
 /////////////////////////////////////////////////////////////////////////////

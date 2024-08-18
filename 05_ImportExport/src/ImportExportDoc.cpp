@@ -11,6 +11,8 @@
 
 #include <AISDialogs.h>
 #include "res/resource.h"
+#include <BRepBuilderAPI_MakeEdge.hxx>
+#include <ChFi2d_ChamferAPI.hxx>
 
 
 #ifdef _DEBUG
@@ -40,6 +42,7 @@ BEGIN_MESSAGE_MAP(CImportExportDoc, OCC_3dDoc)
 	ON_COMMAND(ID_OBJECT_DISPLAYALL, OnObjectDisplayall)
 	//}}AFX_MSG_MAP
 
+	ON_COMMAND(ID_CAD_CHFI2D, &CImportExportDoc::OnCadChfi2d)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -285,4 +288,52 @@ void CImportExportDoc::OnObjectDisplayall()
 
 {
 	OCC_3dBaseDoc::OnObjectDisplayall(); 
+}
+
+void CImportExportDoc::OnCadChfi2d()
+{
+	// TODO: 在此添加命令处理程序代码
+	// TODO: 在此添加命令处理程序代码
+	gp_Pnt p1(0.0, 0.0, 0.0);
+	gp_Pnt p2(10.0, 0.0, 0.0);
+	gp_Pnt p3(10.0, 0.0, 0.0);
+	gp_Pnt p4(10.0, 10.0, 0.0);
+
+	TopoDS_Edge edge1 = BRepBuilderAPI_MakeEdge(p1, p2);
+	TopoDS_Edge edge2 = BRepBuilderAPI_MakeEdge(p3, p4);
+
+	ChFi2d_ChamferAPI chamferAPI(edge1, edge2);
+
+	if (chamferAPI.Perform()) {
+		TopoDS_Edge chamferedEdge = chamferAPI.Result(edge1, edge2, 2.0, 2.0);
+
+		// Clear the displayed objects
+		AIS_ListOfInteractive aList;
+		myAISContext->DisplayedObjects(aList);
+		AIS_ListIteratorOfListOfInteractive aListIterator;
+		for (aListIterator.Initialize(aList); aListIterator.More(); aListIterator.Next()) {
+			myAISContext->Remove(aListIterator.Value(), Standard_False);
+		}
+
+		// Create AIS_Shape objects for each edge with different colors
+		Handle(AIS_Shape) aisEdge1 = new AIS_Shape(edge1);
+		aisEdge1->SetColor(Quantity_NOC_RED); // Set color for the first edge
+
+		Handle(AIS_Shape) aisEdge2 = new AIS_Shape(edge2);
+		aisEdge2->SetColor(Quantity_NOC_BLUE1); // Set color for the second edge
+
+		Handle(AIS_Shape) aisChamferedShape = new AIS_Shape(chamferedEdge);
+		aisChamferedShape->SetColor(Quantity_NOC_GREEN);
+
+		myAISContext->Display(aisEdge1, Standard_True);
+		myAISContext->Display(aisEdge2, Standard_True);
+		myAISContext->Display(aisChamferedShape, Standard_True);
+
+		Fit();
+		SetModifiedFlag(TRUE);
+		std::cout << "Chamfer operation succeeded and shape displayed." << std::endl;
+	}
+	else {
+		std::cerr << "Chamfer operation failed." << std::endl;
+	}
 }
