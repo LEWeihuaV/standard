@@ -1,0 +1,34 @@
+# 忽略 Visual Studio 配置文件
+.vs/
+
+# 忽略生成的对象文件
+*.obj
+*.pdb
+*.ilk
+*.pch
+*.user
+*.aps
+*.bsc
+
+# 忽略生成的其他文件
+*.exe
+*.dll
+*.lib
+
+# 忽略特定目录
+01_Geometry/adm/win/vc10/win64/objd/
+02_Modeling/adm/win/vc10/win64/objd/
+03_Viewer2d/adm/win/vc10/win64/objd/
+04_Viewer3d/adm/win/vc10/win64/objd/
+05_ImportExport/adm/win/vc10/win64/objd/
+06_Ocaf/adm/win/vc10/win64/objd/
+07_Triangulation/adm/win/vc10/win64/objd/
+08_HLR/adm/win/vc10/win64/objd/
+09_Animation/adm/win/vc10/win64/objd/
+10_Convert/adm/win/vc10/win64/objd/
+mfcsample/adm/win/vc10/win64/objd/
+
+# 忽略特定文件
+/win64/bind/Geometry.bsc
+/win64/bind/Viewer3d.bsc
+/05_ImportExport/adm/win/vc10/ImportExport.vcxproj.user
