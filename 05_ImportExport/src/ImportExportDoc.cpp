@@ -14,6 +14,22 @@
 #include <BRepBuilderAPI_MakeEdge.hxx>
 #include <ChFi2d_ChamferAPI.hxx>
 
+#include <BSplCLib.hxx>
+#include <BSplCLib_EvaluatorFunction.hxx>
+#include <gp_Pnt.hxx>
+#include <TColgp_Array1OfPnt.hxx>
+#include <TColStd_Array1OfReal.hxx>
+#include <Geom_BSplineCurve.hxx>
+#include <TopoDS_Wire.hxx>
+#include <TopoDS_Edge.hxx>
+#include <TopoDS_Vertex.hxx>
+#include <BRepBuilderAPI_MakeWire.hxx>
+#include <BRepBuilderAPI_MakeEdge.hxx>
+#include <Geom_BezierCurve.hxx>
+#include <gp_Pnt.hxx>
+#include <TColgp_Array1OfPnt.hxx>
+
+
 
 #ifdef _DEBUG
 //#define new DEBUG_NEW  // by cascade
@@ -43,28 +59,29 @@ BEGIN_MESSAGE_MAP(CImportExportDoc, OCC_3dDoc)
 	//}}AFX_MSG_MAP
 
 	ON_COMMAND(ID_CAD_CHFI2D, &CImportExportDoc::OnCadChfi2d)
+	ON_COMMAND(ID_BSPLCLIB_BSPLCLIBINSTANCE, &CImportExportDoc::OnBsplclibBsplclibinstance)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
 // CImportExportDoc construction/destruction
 
 CImportExportDoc::CImportExportDoc()
-: OCC_3dDoc (false)
+	: OCC_3dDoc(false)
 {
-/*
-    // TRIHEDRON
-	Handle(AIS_Trihedron) aTrihedron;
-	Handle(Geom_Axis2Placement) aTrihedronAxis=new Geom_Axis2Placement(gp::XOY());
-	aTrihedron=new AIS_Trihedron(aTrihedronAxis);
-	myAISContext->Display(aTrihedron);
-*/
+	/*
+		// TRIHEDRON
+		Handle(AIS_Trihedron) aTrihedron;
+		Handle(Geom_Axis2Placement) aTrihedronAxis=new Geom_Axis2Placement(gp::XOY());
+		aTrihedron=new AIS_Trihedron(aTrihedronAxis);
+		myAISContext->Display(aTrihedron);
+	*/
 
 	m_pcoloredshapeList = new CColoredShapes();
 }
 
 CImportExportDoc::~CImportExportDoc()
 {
-	if( m_pcoloredshapeList ) delete m_pcoloredshapeList;
+	if (m_pcoloredshapeList) delete m_pcoloredshapeList;
 }
 
 
@@ -90,9 +107,9 @@ void CImportExportDoc::Serialize(CArchive& ar)
 
 
 /*
-void CImportExportDoc::OnWindowNew3d() 
+void CImportExportDoc::OnWindowNew3d()
 {
-	((CImportExportApp*)AfxGetApp())->CreateView3D(this);	
+	((CImportExportApp*)AfxGetApp())->CreateView3D(this);
 }
 */
 
@@ -107,21 +124,21 @@ void CImportExportDoc::OnWindowNew3d()
 
 // use pViewClass = RUNTIME_CLASS( CImportExportView3D ) for 3D Views
 
-void CImportExportDoc::ActivateFrame(CRuntimeClass* pViewClass,int nCmdShow)
+void CImportExportDoc::ActivateFrame(CRuntimeClass* pViewClass, int nCmdShow)
 {
-  POSITION position = GetFirstViewPosition();
-  while (position != (POSITION)NULL)
-  {
-    CView* pCurrentView = (CView*)GetNextView(position);
-     if(pCurrentView->IsKindOf(pViewClass) )
-    {
-        ASSERT_VALID(pCurrentView);
-        CFrameWnd* pParentFrm = pCurrentView->GetParentFrame();
-	    ASSERT(pParentFrm != (CFrameWnd *)NULL);
-        // simply make the frame window visible
-	    pParentFrm->ActivateFrame(nCmdShow);
-    }
-  }
+	POSITION position = GetFirstViewPosition();
+	while (position != (POSITION)NULL)
+	{
+		CView* pCurrentView = (CView*)GetNextView(position);
+		if (pCurrentView->IsKindOf(pViewClass))
+		{
+			ASSERT_VALID(pCurrentView);
+			CFrameWnd* pParentFrm = pCurrentView->GetParentFrame();
+			ASSERT(pParentFrm != (CFrameWnd*)NULL);
+			// simply make the frame window visible
+			pParentFrm->ActivateFrame(nCmdShow);
+		}
+	}
 
 }
 
@@ -147,90 +164,98 @@ void CImportExportDoc::Dump(CDumpContext& dc) const
 void CImportExportDoc::OnFileImportBrep()
 {
 	Handle(TopTools_HSequenceOfShape) aSeqOfShape = CImportExport::ReadBREP();
-	for(int i=1;i<= aSeqOfShape->Length();i++)
+	for (int i = 1; i <= aSeqOfShape->Length(); i++)
 	{
 		m_pcoloredshapeList->Add(Quantity_NOC_YELLOW, aSeqOfShape->Value(i));
-        m_pcoloredshapeList->Display(myAISContext);
+		m_pcoloredshapeList->Display(myAISContext);
 	}
 	Fit();
 }
 
-void CImportExportDoc::OnFileImportIges() 
-{   
+void CImportExportDoc::OnFileImportIges()
+{
 	Handle(TopTools_HSequenceOfShape) aSeqOfShape = CImportExport::ReadIGES();
-	for(int i=1;i<= aSeqOfShape->Length();i++)
+	for (int i = 1; i <= aSeqOfShape->Length(); i++)
 	{
 		m_pcoloredshapeList->Add(Quantity_NOC_YELLOW, aSeqOfShape->Value(i));
-        m_pcoloredshapeList->Display(myAISContext);
+		m_pcoloredshapeList->Display(myAISContext);
 	}
 	Fit();
 }
-void CImportExportDoc::OnFileExportIges() 
-{   CImportExport::SaveIGES(myAISContext);}
+void CImportExportDoc::OnFileExportIges()
+{
+	CImportExport::SaveIGES(myAISContext);
+}
 
-void CImportExportDoc::OnFileImportStep() 
-{   
+void CImportExportDoc::OnFileImportStep()
+{
 	Handle(TopTools_HSequenceOfShape) aSeqOfShape = CImportExport::ReadSTEP();
-	for(int i=1;i<= aSeqOfShape->Length();i++)
+	for (int i = 1; i <= aSeqOfShape->Length(); i++)
 	{
 		m_pcoloredshapeList->Add(Quantity_NOC_YELLOW, aSeqOfShape->Value(i));
-        m_pcoloredshapeList->Display(myAISContext);
+		m_pcoloredshapeList->Display(myAISContext);
 	}
 	Fit();
 }
-void CImportExportDoc::OnFileExportStep() 
-{   CImportExport::SaveSTEP(myAISContext);}
+void CImportExportDoc::OnFileExportStep()
+{
+	CImportExport::SaveSTEP(myAISContext);
+}
 
 
-void CImportExportDoc::OnFileExportVrml() 
-{   CImportExport::SaveVRML(myAISContext);}
+void CImportExportDoc::OnFileExportVrml()
+{
+	CImportExport::SaveVRML(myAISContext);
+}
 
-void CImportExportDoc::OnFileExportStl() 
-{   CImportExport::SaveSTL(myAISContext);}
+void CImportExportDoc::OnFileExportStl()
+{
+	CImportExport::SaveSTL(myAISContext);
+}
 
 void  CImportExportDoc::Popup(const Standard_Integer  x,
-							   const Standard_Integer  y ,
-                               const Handle(V3d_View)& aView   ) 
+	const Standard_Integer  y,
+	const Handle(V3d_View)& aView)
 {
-  Standard_Integer PopupMenuNumber=0;
- myAISContext->InitSelected();
-  if (myAISContext->MoreSelected())
-    PopupMenuNumber=1;
+	Standard_Integer PopupMenuNumber = 0;
+	myAISContext->InitSelected();
+	if (myAISContext->MoreSelected())
+		PopupMenuNumber = 1;
 
-  CMenu menu;
-  VERIFY(menu.LoadMenu(IDR_Popup3D));
-  CMenu* pPopup = menu.GetSubMenu(PopupMenuNumber);
+	CMenu menu;
+	VERIFY(menu.LoadMenu(IDR_Popup3D));
+	CMenu* pPopup = menu.GetSubMenu(PopupMenuNumber);
 
-  ASSERT(pPopup != NULL);
-   if (PopupMenuNumber == 1) // more than 1 object.
-  {
-    bool OneOrMoreInShading = false;
-	for (myAISContext->InitSelected();myAISContext->MoreSelected ();myAISContext->NextSelected ())
-    if (myAISContext->IsDisplayed(myAISContext->SelectedInteractive(),1)) OneOrMoreInShading=true;
-	if(!OneOrMoreInShading)
-   	pPopup->EnableMenuItem(5, MF_BYPOSITION | MF_DISABLED | MF_GRAYED);
-   }
+	ASSERT(pPopup != NULL);
+	if (PopupMenuNumber == 1) // more than 1 object.
+	{
+		bool OneOrMoreInShading = false;
+		for (myAISContext->InitSelected(); myAISContext->MoreSelected(); myAISContext->NextSelected())
+			if (myAISContext->IsDisplayed(myAISContext->SelectedInteractive(), 1)) OneOrMoreInShading = true;
+		if (!OneOrMoreInShading)
+			pPopup->EnableMenuItem(5, MF_BYPOSITION | MF_DISABLED | MF_GRAYED);
+	}
 
-  POINT winCoord = { x , y };
-  Handle(WNT_Window) aWNTWindow=
-  Handle(WNT_Window)::DownCast(aView->Window());
-  ClientToScreen ( (HWND)(aWNTWindow->HWindow()),&winCoord);
-  pPopup->TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON , winCoord.x, winCoord.y , 
-                         AfxGetMainWnd());
+	POINT winCoord = { x , y };
+	Handle(WNT_Window) aWNTWindow =
+		Handle(WNT_Window)::DownCast(aView->Window());
+	ClientToScreen((HWND)(aWNTWindow->HWindow()), &winCoord);
+	pPopup->TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, winCoord.x, winCoord.y,
+		AfxGetMainWnd());
 
 
 }
 
-void CImportExportDoc::OnBox() 
+void CImportExportDoc::OnBox()
 {
 	AIS_ListOfInteractive aList;
 	myAISContext->DisplayedObjects(aList);
 	AIS_ListIteratorOfListOfInteractive aListIterator;
-	for(aListIterator.Initialize(aList);aListIterator.More();aListIterator.Next()){
-		myAISContext->Remove (aListIterator.Value(), Standard_False);
+	for (aListIterator.Initialize(aList); aListIterator.More(); aListIterator.Next()) {
+		myAISContext->Remove(aListIterator.Value(), Standard_False);
 	}
 
-	BRepPrimAPI_MakeBox B(200.,150.,100.);
+	BRepPrimAPI_MakeBox B(200., 150., 100.);
 
 	m_pcoloredshapeList->Add(Quantity_NOC_YELLOW, B.Shape());
 
@@ -241,16 +266,16 @@ void CImportExportDoc::OnBox()
 	SetModifiedFlag(TRUE);
 }
 
-void CImportExportDoc::OnCylinder() 
+void CImportExportDoc::OnCylinder()
 {
 	AIS_ListOfInteractive aList;
 	myAISContext->DisplayedObjects(aList);
 	AIS_ListIteratorOfListOfInteractive aListIterator;
-	for(aListIterator.Initialize(aList);aListIterator.More();aListIterator.Next()){
-		myAISContext->Remove (aListIterator.Value(), Standard_False);
+	for (aListIterator.Initialize(aList); aListIterator.More(); aListIterator.Next()) {
+		myAISContext->Remove(aListIterator.Value(), Standard_False);
 	}
 
-	BRepPrimAPI_MakeCylinder C(50.,200.);
+	BRepPrimAPI_MakeCylinder C(50., 200.);
 
 	m_pcoloredshapeList->Add(Quantity_NOC_GREEN, C.Shape());
 
@@ -260,34 +285,34 @@ void CImportExportDoc::OnCylinder()
 	// document has been modified
 	SetModifiedFlag(TRUE);
 }
-void CImportExportDoc::OnObjectRemove() 
+void CImportExportDoc::OnObjectRemove()
 
 {
-	for(GetAISContext()->InitSelected();GetAISContext()->MoreSelected();GetAISContext()->NextSelected()) {
+	for (GetAISContext()->InitSelected(); GetAISContext()->MoreSelected(); GetAISContext()->NextSelected()) {
 		Handle(AIS_Shape) aShape = Handle(AIS_Shape)::DownCast(GetAISContext()->SelectedInteractive());
-		if(!aShape.IsNull()) {
+		if (!aShape.IsNull()) {
 			m_pcoloredshapeList->Remove(aShape->Shape());
 		}
 	}
 	OCC_3dBaseDoc::OnObjectRemove();
 }
 
-void CImportExportDoc::OnObjectErase() 
+void CImportExportDoc::OnObjectErase()
 
 {
-	for(GetAISContext()->InitSelected();GetAISContext()->MoreSelected();GetAISContext()->NextSelected()) {
+	for (GetAISContext()->InitSelected(); GetAISContext()->MoreSelected(); GetAISContext()->NextSelected()) {
 		Handle(AIS_Shape) aShape = Handle(AIS_Shape)::DownCast(GetAISContext()->SelectedInteractive());
-		if(!aShape.IsNull()) {
+		if (!aShape.IsNull()) {
 			m_pcoloredshapeList->Remove(aShape->Shape());
 		}
 	}
-	OCC_3dBaseDoc::OnObjectErase(); 
+	OCC_3dBaseDoc::OnObjectErase();
 }
 
-void CImportExportDoc::OnObjectDisplayall() 
+void CImportExportDoc::OnObjectDisplayall()
 
 {
-	OCC_3dBaseDoc::OnObjectDisplayall(); 
+	OCC_3dBaseDoc::OnObjectDisplayall();
 }
 
 void CImportExportDoc::OnCadChfi2d()
@@ -337,3 +362,61 @@ void CImportExportDoc::OnCadChfi2d()
 		std::cerr << "Chamfer operation failed." << std::endl;
 	}
 }
+
+
+void CImportExportDoc::OnBsplclibBsplclibinstance()
+{
+	// TODO: 在此添加命令处理程序代码
+	// 定义点
+	gp_Pnt p1(0.0, 0.0, 0.0);   // 直线的起点
+	gp_Pnt p2(10.0, 0.0, 0.0);  // 直线的终点，曲线的起点
+	gp_Pnt p3(15.0, 5.0, 0.0);  // 曲线的控制点
+	gp_Pnt p4(20.0, 0.0, 0.0);  // 曲线的终点
+
+	// 创建直线段
+	TopoDS_Edge lineEdge = BRepBuilderAPI_MakeEdge(p1, p2);
+
+	// 创建一条简单的 Bezier 曲线段，连接点 p2 和 p4
+	TColgp_Array1OfPnt curvePoints(1, 3);
+	curvePoints(1) = p2; // 直线的终点，曲线的起点
+	curvePoints(2) = p3; // 控制点
+	curvePoints(3) = p4; // 曲线的终点
+
+	Handle(Geom_BezierCurve) bezierCurve = new Geom_BezierCurve(curvePoints);
+	TopoDS_Edge curveEdge = BRepBuilderAPI_MakeEdge(bezierCurve);
+
+	// 将直线段和曲线段组合成多段线 (Wire)
+	BRepBuilderAPI_MakeWire wireBuilder;
+	wireBuilder.Add(lineEdge);
+	wireBuilder.Add(curveEdge);
+
+	// 获取最终的 Wire 对象
+	TopoDS_Wire wire = wireBuilder.Wire();
+	displayShape(wire, Quantity_NOC_GREEN);
+}
+
+
+void CImportExportDoc::displayShape(const TopoDS_Shape& shape, const Quantity_Color& color)
+{
+	// 清除已显示的对象
+	AIS_ListOfInteractive aList;
+	myAISContext->DisplayedObjects(aList);
+	AIS_ListIteratorOfListOfInteractive aListIterator;
+	for (aListIterator.Initialize(aList); aListIterator.More(); aListIterator.Next()) {
+		myAISContext->Remove(aListIterator.Value(), Standard_False);
+	}
+
+	// 创建 AIS_Shape 对象并设置颜色
+	Handle(AIS_Shape) aisShape = new AIS_Shape(shape);
+	aisShape->SetColor(color);
+
+	// 显示形状
+	myAISContext->Display(aisShape, Standard_True);
+
+	// 调整视图以适应形状
+	Fit();
+	SetModifiedFlag(TRUE);
+
+	std::cout << "Shape displayed successfully." << std::endl;
+}
+

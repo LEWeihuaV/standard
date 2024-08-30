@@ -10,6 +10,8 @@
 #define ID_FILE_SAVE32809               32809
 #define ID_FILE_RECENTFILE              32810
 #define ID_CAD_CHFI2D                   32811
+#define ID_CAD_BSPLCLIB                 32812
+#define ID_BSPLCLIB_BSPLCLIBINSTANCE    32813
 #define ID_FILE_EXPORT_STL              32896
 #define ID_FILE_EXPORT_VRML             32897
 
@@ -19,7 +21,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        178
-#define _APS_NEXT_COMMAND_VALUE         32812
+#define _APS_NEXT_COMMAND_VALUE         32814
 #define _APS_NEXT_CONTROL_VALUE         1505
 #define _APS_NEXT_SYMED_VALUE           170
 #endif

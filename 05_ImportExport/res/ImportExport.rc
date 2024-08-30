@@ -171,6 +171,10 @@ BEGIN
     POPUP "CAD"
     BEGIN
         MENUITEM "ChFi2d_Chamfer",              ID_CAD_CHFI2D
+        POPUP "BSplCLib"
+        BEGIN
+            MENUITEM "BSplCLibInstance",            ID_BSPLCLIB_BSPLCLIBINSTANCE
+        END
     END
 END
 
