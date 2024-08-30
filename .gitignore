@@ -52,12 +52,5 @@ mfcsample/adm/win/vc10/win64/objd/
 /win64/bind/Triangulation.exp
 /win64/bind/Viewer2d.exp
 /win64/bind/Viewer3d.exp
-/run.bat
-/msvc.bat
-/env.bat
-/All-vc10.sln
-/All-vc11.sln
-/All-vc12.sln
-/All-vc14.sln
 /win64/bind/openvr_api.dll.sig
 /win64/libd/mfcsample.exp
