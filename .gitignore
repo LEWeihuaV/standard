@@ -59,3 +59,5 @@ mfcsample/adm/win/vc10/win64/objd/
 /All-vc11.sln
 /All-vc12.sln
 /All-vc14.sln
+/win64/bind/openvr_api.dll.sig
+/win64/libd/mfcsample.exp
