@@ -28,6 +28,9 @@
 #include <Geom_BezierCurve.hxx>
 #include <gp_Pnt.hxx>
 #include <TColgp_Array1OfPnt.hxx>
+#include <Geom_BSplineSurface.hxx>
+#include <TColgp_Array2OfPnt.hxx>
+#include <BRepBuilderAPI_MakeFace.hxx>
 
 
 
@@ -60,6 +63,7 @@ BEGIN_MESSAGE_MAP(CImportExportDoc, OCC_3dDoc)
 
 	ON_COMMAND(ID_CAD_CHFI2D, &CImportExportDoc::OnCadChfi2d)
 	ON_COMMAND(ID_BSPLCLIB_BSPLCLIBINSTANCE, &CImportExportDoc::OnBsplclibBsplclibinstance)
+	ON_COMMAND(ID_CAD_CUTFACEBYLINE, &CImportExportDoc::OnCadCutfacebyline)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -419,4 +423,10 @@ void CImportExportDoc::displayShape(const TopoDS_Shape& shape, const Quantity_Co
 
 	std::cout << "Shape displayed successfully." << std::endl;
 }
+
+
+
+void CImportExportDoc::OnCadCutfacebyline()
+{}
+
 

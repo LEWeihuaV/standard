@@ -175,6 +175,7 @@ BEGIN
         BEGIN
             MENUITEM "BSplCLibInstance",            ID_BSPLCLIB_BSPLCLIBINSTANCE
         END
+        MENUITEM "CutFaceByLine",               ID_CAD_CUTFACEBYLINE
     END
 END
 
