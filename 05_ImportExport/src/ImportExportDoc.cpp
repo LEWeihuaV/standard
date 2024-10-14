@@ -28,6 +28,16 @@
 #include <Geom_BezierCurve.hxx>
 #include <gp_Pnt.hxx>
 #include <TColgp_Array1OfPnt.hxx>
+#include <BRepBuilderAPI_MakeEdge.hxx>
+#include <BRepBuilderAPI_MakeWire.hxx>
+#include <BRepFilletAPI_MakeFillet.hxx>
+#include <TopoDS_Edge.hxx>
+#include <TopoDS_Wire.hxx>
+#include <TopoDS_Vertex.hxx>
+#include <gp_Pnt.hxx>
+#include <BRepBuilderAPI_MakeFace.hxx>
+#include <BRepFilletAPI_MakeFillet2d.hxx>
+#include <BRepBuilderAPI_MakeVertex.hxx>
 
 
 
@@ -60,6 +70,7 @@ BEGIN_MESSAGE_MAP(CImportExportDoc, OCC_3dDoc)
 
 	ON_COMMAND(ID_CAD_CHFI2D, &CImportExportDoc::OnCadChfi2d)
 	ON_COMMAND(ID_BSPLCLIB_BSPLCLIBINSTANCE, &CImportExportDoc::OnBsplclibBsplclibinstance)
+	ON_COMMAND(ID_CAD_FILLETWIRE, &CImportExportDoc::OnCadFilletwire)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -420,3 +431,39 @@ void CImportExportDoc::displayShape(const TopoDS_Shape& shape, const Quantity_Co
 	std::cout << "Shape displayed successfully." << std::endl;
 }
 
+
+void CImportExportDoc::OnCadFilletwire()
+{
+	// TODO: 在此添加命令处理程序代码
+	// 创建两个顶点
+	gp_Pnt p1(0, 0, 0);
+	gp_Pnt p2(10, 0, 0);
+	gp_Pnt p3(10, 10, 0);
+
+	TopoDS_Vertex V1 = BRepBuilderAPI_MakeVertex(p1);
+	TopoDS_Vertex V2 = BRepBuilderAPI_MakeVertex(p2);
+	TopoDS_Vertex V3 = BRepBuilderAPI_MakeVertex(p3);
+
+	// 创建一条边
+	TopoDS_Edge edge1 = BRepBuilderAPI_MakeEdge(V1, V2);
+	TopoDS_Edge edge2 = BRepBuilderAPI_MakeEdge(V2, V3);
+
+	// 创建一条线段构成的闭合线圈
+	TopoDS_Wire wire = BRepBuilderAPI_MakeWire(edge1, edge2);
+
+	// 创建一个面
+	TopoDS_Face face = BRepBuilderAPI_MakeFace(wire);
+
+	// 创建2D倒角对象并初始化
+	BRepFilletAPI_MakeFillet2d fillet2d(face);
+
+	// 添加倒角，倒角半径为 1.0
+	TopoDS_Edge filletEdge = fillet2d.AddFillet(V2, 1.0);
+
+	// 现在，修改倒角的半径为 2.0
+	TopoDS_Edge modifiedFilletEdge = fillet2d.ModifyFillet(filletEdge, 2.0);
+
+	// 生成修改后的结果形状
+	TopoDS_Shape result = fillet2d.Shape();
+	displayShape(result, Quantity_NOC_GREEN);
+}

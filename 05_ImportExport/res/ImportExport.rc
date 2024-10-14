@@ -175,6 +175,7 @@ BEGIN
         BEGIN
             MENUITEM "BSplCLibInstance",            ID_BSPLCLIB_BSPLCLIBINSTANCE
         END
+        MENUITEM "FilletWire",                  ID_CAD_FILLETWIRE
     END
 END
 

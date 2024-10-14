@@ -58,6 +58,7 @@ public:
 	afx_msg void OnCadChfi2d();
 	afx_msg void OnBsplclibBsplclibinstance();
 	void displayShape(const TopoDS_Shape& shape, const Quantity_Color& color);
+	afx_msg void OnCadFilletwire();
 };
 
 /////////////////////////////////////////////////////////////////////////////
