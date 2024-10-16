@@ -58,6 +58,7 @@ public:
 	afx_msg void OnCadChfi2d();
 	afx_msg void OnBsplclibBsplclibinstance();
 	void displayShape(const TopoDS_Shape& shape, const Quantity_Color& color);
+	void displayShapes(const std::vector<TopoDS_Shape>& shapes, const std::vector<Quantity_Color>& colors);
 	afx_msg void OnCadFilletwire();
 };
 

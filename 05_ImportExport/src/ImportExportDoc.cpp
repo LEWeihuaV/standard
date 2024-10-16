@@ -38,6 +38,7 @@
 #include <BRepBuilderAPI_MakeFace.hxx>
 #include <BRepFilletAPI_MakeFillet2d.hxx>
 #include <BRepBuilderAPI_MakeVertex.hxx>
+#include <ChFi2d_FilletAPI.hxx>
 
 
 
@@ -431,39 +432,92 @@ void CImportExportDoc::displayShape(const TopoDS_Shape& shape, const Quantity_Co
 	std::cout << "Shape displayed successfully." << std::endl;
 }
 
+void CImportExportDoc::displayShapes(const std::vector<TopoDS_Shape>& shapes, const std::vector<Quantity_Color>& colors)
+{
+	if (shapes.size() != colors.size()) {
+		std::cerr << "The number of shapes and colors must be the same." << std::endl;
+		return;
+	}
+
+	// 循环遍历所有的形状
+	for (size_t i = 0; i < shapes.size(); ++i) {
+		// 创建 AIS_Shape 对象并设置颜色
+		Handle(AIS_Shape) aisShape = new AIS_Shape(shapes[i]);
+		aisShape->SetColor(colors[i]);
+
+		// 显示形状
+		myAISContext->Display(aisShape, Standard_True);
+	}
+
+	// 调整视图以适应所有形状
+	Fit();
+	SetModifiedFlag(TRUE);
+
+	std::cout << "All shapes displayed successfully." << std::endl;
+}
+
 
 void CImportExportDoc::OnCadFilletwire()
 {
 	// TODO: 在此添加命令处理程序代码
 	// 创建两个顶点
-	gp_Pnt p1(0, 0, 0);
-	gp_Pnt p2(10, 0, 0);
-	gp_Pnt p3(10, 10, 0);
+	//gp_Pnt p1(0, 0, 0);
+	//gp_Pnt p2(10, 0, 0);
+	//gp_Pnt p3(10, 10, 0);
 
-	TopoDS_Vertex V1 = BRepBuilderAPI_MakeVertex(p1);
-	TopoDS_Vertex V2 = BRepBuilderAPI_MakeVertex(p2);
-	TopoDS_Vertex V3 = BRepBuilderAPI_MakeVertex(p3);
+	//TopoDS_Vertex V1 = BRepBuilderAPI_MakeVertex(p1);
+	//TopoDS_Vertex V2 = BRepBuilderAPI_MakeVertex(p2);
+	//TopoDS_Vertex V3 = BRepBuilderAPI_MakeVertex(p3);
 
-	// 创建一条边
-	TopoDS_Edge edge1 = BRepBuilderAPI_MakeEdge(V1, V2);
-	TopoDS_Edge edge2 = BRepBuilderAPI_MakeEdge(V2, V3);
+	//// 创建一条边
+	//TopoDS_Edge edge1 = BRepBuilderAPI_MakeEdge(V1, V2);
+	//TopoDS_Edge edge2 = BRepBuilderAPI_MakeEdge(V2, V3);
 
-	// 创建一条线段构成的闭合线圈
-	TopoDS_Wire wire = BRepBuilderAPI_MakeWire(edge1, edge2);
+	//// 创建一条线段构成的闭合线圈
+	//TopoDS_Wire wire = BRepBuilderAPI_MakeWire(edge1, edge2);
 
-	// 创建一个面
-	TopoDS_Face face = BRepBuilderAPI_MakeFace(wire);
+	//// 创建一个面
+	//TopoDS_Face face = BRepBuilderAPI_MakeFace(wire);
 
-	// 创建2D倒角对象并初始化
-	BRepFilletAPI_MakeFillet2d fillet2d(face);
+	//// 创建2D倒角对象并初始化
+	//BRepFilletAPI_MakeFillet2d fillet2d(face);
 
-	// 添加倒角，倒角半径为 1.0
-	TopoDS_Edge filletEdge = fillet2d.AddFillet(V2, 1.0);
+	//// 添加倒角，倒角半径为 1.0
+	//TopoDS_Edge filletEdge = fillet2d.AddFillet(V2, 1.0);
 
-	// 现在，修改倒角的半径为 2.0
-	TopoDS_Edge modifiedFilletEdge = fillet2d.ModifyFillet(filletEdge, 2.0);
+	//// 现在，修改倒角的半径为 2.0
+	//TopoDS_Edge modifiedFilletEdge = fillet2d.ModifyFillet(filletEdge, 2.0);
 
-	// 生成修改后的结果形状
-	TopoDS_Shape result = fillet2d.Shape();
-	displayShape(result, Quantity_NOC_GREEN);
+	//// 生成修改后的结果形状
+	//TopoDS_Shape result = fillet2d.Shape();
+
+	// 创建边
+	gp_Pnt p1(0.0, 0.0, 0.0);
+	gp_Pnt p2(1.0, 0.0, 0.0);
+	gp_Pnt p3(1.0, 1.0, 0.0);
+	TopoDS_Edge edge1 = BRepBuilderAPI_MakeEdge(p1, p2);
+	TopoDS_Edge edge2 = BRepBuilderAPI_MakeEdge(p2, p3);
+	// 创建一个平面
+	gp_Pln plane(gp_Ax2(gp_Pnt(0, 0, 0), gp_Dir(0, 0, 1)));
+	// 使用 ChFi2d_FilletAPI 创建圆角
+	ChFi2d_FilletAPI filletAPI(edge1, edge2, plane);
+	// 初始化算法
+	filletAPI.Init(edge1, edge2, plane);
+	// 设置圆角半径
+	Standard_Real radius = 0.2;
+	// 执行圆角操作
+	if (filletAPI.Perform(radius)) {
+		std::cout << "Fillet created successfully." << std::endl;
+		// 获取第一个结果
+		gp_Pnt commonPoint = p2; // 交点
+		TopoDS_Edge resultEdge = filletAPI.Result(commonPoint, edge1, edge2);
+		// 在这里可以对 resultEdge 进行进一步处理，比如绘制或存储
+		std::cout << "Resulting fillet edge created." << std::endl;
+		//std::vector<TopoDS_Shape> shapes = { shape1, shape2, shape3 };
+		//std::vector<Quantity_Color> colors = { Quantity_NOC_RED, Quantity_NOC_GREEN, Quantity_NOC_BLUE };
+		//displayShapes(shapes, colors);
+		std::vector<TopoDS_Shape> shapes = { resultEdge, edge1, edge2 };
+		std::vector<Quantity_Color> colors = { Quantity_NOC_RED, Quantity_NOC_GREEN, Quantity_NOC_BLUE };
+		displayShapes(shapes, colors);
+	}
 }
