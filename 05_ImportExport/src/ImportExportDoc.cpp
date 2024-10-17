@@ -39,6 +39,9 @@
 #include <BRepFilletAPI_MakeFillet2d.hxx>
 #include <BRepBuilderAPI_MakeVertex.hxx>
 #include <ChFi2d_FilletAPI.hxx>
+#include <BRepMesh_DiscretRoot.hxx>
+#include <XBRepMesh.hxx>
+using namespace std;
 
 
 
@@ -72,6 +75,8 @@ BEGIN_MESSAGE_MAP(CImportExportDoc, OCC_3dDoc)
 	ON_COMMAND(ID_CAD_CHFI2D, &CImportExportDoc::OnCadChfi2d)
 	ON_COMMAND(ID_BSPLCLIB_BSPLCLIBINSTANCE, &CImportExportDoc::OnBsplclibBsplclibinstance)
 	ON_COMMAND(ID_CAD_FILLETWIRE, &CImportExportDoc::OnCadFilletwire)
+	ON_COMMAND(ID_OCCT_TMATHVECTOR, &CImportExportDoc::OnOcctTmathvector)
+	ON_COMMAND(ID_OCCT_TXBREPMESH, &CImportExportDoc::OnOcctTxbrepmesh)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -520,4 +525,90 @@ void CImportExportDoc::OnCadFilletwire()
 		std::vector<Quantity_Color> colors = { Quantity_NOC_RED, Quantity_NOC_GREEN, Quantity_NOC_BLUE };
 		displayShapes(shapes, colors);
 	}
+}
+
+
+void CImportExportDoc::OnOcctTmathvector()
+{
+	// TODO: 在此添加命令处理程序代码
+	math_Vector vecotrOne(2, 2);
+	math_Vector vectorTwo(0, 2);
+	math_Vector result = vecotrOne-vectorTwo;
+	std::cout << result;
+	// 将结果转换为字符串
+	std::ostringstream oss;
+	oss << result; // 假设你的 math_Vector 有重载的输出运算符
+	CString resultStr = CString(oss.str().c_str());
+
+	// 弹出消息框显示结果
+	AfxMessageBox(resultStr);
+
+}
+
+
+void CImportExportDoc::OnOcctTxbrepmesh()
+{
+	// TODO: 在此添加命令处理程序代码
+	// 创建一个立方体，边长为1.0
+	TopoDS_Shape cube = BRepPrimAPI_MakeBox(1.0, 1.0, 1.0);
+
+	// STEP 文件路径
+	const std::string stepFilePath = "C:\\Users\\leweihua\\Downloads\\Lidar.STEP";
+
+	// 创建 STEP 读取器
+	STEPControl_Reader reader;
+
+	// 读取 STEP 文件
+	if (reader.ReadFile(stepFilePath.c_str()) != IFSelect_RetDone) {
+		return;
+	}
+
+	// 转换到 OCCT 形状
+	Standard_Integer nbs = reader.NbRootsForTransfer();
+	for (Standard_Integer i = 1; i <= nbs; i++) {
+		reader.TransferRoot(i);
+	}
+	TopoDS_Shape shape = reader.OneShape();
+
+
+	// 定义离散化参数
+	Standard_Real deflection = 0.01; // 允许的偏差
+	Standard_Real angle = 5.0; // 允许的角度偏差
+
+	BRepMesh_DiscretRoot* algo = nullptr;
+	// 调用离散化函数
+	Standard_Integer status = XBRepMesh::Discret(shape, deflection, angle, algo);
+
+	// 检查离散化状态
+	if (status == 0) {
+		string result="立方体离散化成功！" ;
+		// 将结果转换为字符串
+		std::ostringstream oss;
+		oss << result; // 假设你的 math_Vector 有重载的输出运算符
+		CString resultStr = CString(oss.str().c_str());
+
+		// 弹出消息框显示结果
+		AfxMessageBox(resultStr);
+
+		// 处理离散化结果，比如获取生成的网格
+		// algo->GetMesh() 等方法可以用于获取生成的网格
+		// 获取生成的网格
+		TopoDS_Shape meshShape = algo->Shape(); // 假设这个方法可用
+
+		// 设置网格的颜色（例如，蓝色）
+		Quantity_Color meshColor(0.0, 0.0, 1.0, Quantity_TOC_RGB);
+
+		// 显示网格
+		displayShape(meshShape, meshColor);
+	}
+	else {
+		string result = "离散化失败，错误代码: ";
+		// 将结果转换为字符串
+		std::ostringstream oss;
+		oss << result; // 假设你的 math_Vector 有重载的输出运算符
+		CString resultStr = CString(oss.str().c_str());
+	}
+
+	// 清理
+	delete algo;
 }
