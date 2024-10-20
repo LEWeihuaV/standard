@@ -181,6 +181,7 @@ BEGIN
     BEGIN
         MENUITEM "TMathVector",                 ID_OCCT_TMATHVECTOR
         MENUITEM "TXBRepMesh",                  ID_OCCT_TXBREPMESH
+        MENUITEM "Tutorial",                    ID_OCCT_TUTORIAL
     END
 END
 

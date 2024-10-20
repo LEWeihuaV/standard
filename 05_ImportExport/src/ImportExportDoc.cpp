@@ -41,6 +41,9 @@
 #include <ChFi2d_FilletAPI.hxx>
 #include <BRepMesh_DiscretRoot.hxx>
 #include <XBRepMesh.hxx>
+#include <GC_MakeArcOfCircle.hxx>
+#include <GC_MakeSegment.hxx>
+#include <BRepBuilderAPI_Transform.hxx>
 using namespace std;
 
 
@@ -77,6 +80,7 @@ BEGIN_MESSAGE_MAP(CImportExportDoc, OCC_3dDoc)
 	ON_COMMAND(ID_CAD_FILLETWIRE, &CImportExportDoc::OnCadFilletwire)
 	ON_COMMAND(ID_OCCT_TMATHVECTOR, &CImportExportDoc::OnOcctTmathvector)
 	ON_COMMAND(ID_OCCT_TXBREPMESH, &CImportExportDoc::OnOcctTxbrepmesh)
+	ON_COMMAND(ID_OCCT_TUTORIAL, &CImportExportDoc::OnOcctTutorial)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -439,6 +443,13 @@ void CImportExportDoc::displayShape(const TopoDS_Shape& shape, const Quantity_Co
 
 void CImportExportDoc::displayShapes(const std::vector<TopoDS_Shape>& shapes, const std::vector<Quantity_Color>& colors)
 {
+	AIS_ListOfInteractive aList;
+	myAISContext->DisplayedObjects(aList);
+	AIS_ListIteratorOfListOfInteractive aListIterator;
+	for (aListIterator.Initialize(aList); aListIterator.More(); aListIterator.Next()) {
+		myAISContext->Remove(aListIterator.Value(), Standard_False);
+	}
+
 	if (shapes.size() != colors.size()) {
 		std::cerr << "The number of shapes and colors must be the same." << std::endl;
 		return;
@@ -533,7 +544,7 @@ void CImportExportDoc::OnOcctTmathvector()
 	// TODO: 在此添加命令处理程序代码
 	math_Vector vecotrOne(2, 2);
 	math_Vector vectorTwo(0, 2);
-	math_Vector result = vecotrOne-vectorTwo;
+	math_Vector result = vecotrOne - vectorTwo;
 	std::cout << result;
 	// 将结果转换为字符串
 	std::ostringstream oss;
@@ -581,7 +592,7 @@ void CImportExportDoc::OnOcctTxbrepmesh()
 
 	// 检查离散化状态
 	if (status == 0) {
-		string result="立方体离散化成功！" ;
+		string result = "立方体离散化成功！";
 		// 将结果转换为字符串
 		std::ostringstream oss;
 		oss << result; // 假设你的 math_Vector 有重载的输出运算符
@@ -611,4 +622,50 @@ void CImportExportDoc::OnOcctTxbrepmesh()
 
 	// 清理
 	delete algo;
+}
+
+
+void CImportExportDoc::OnOcctTutorial()
+{
+	// TODO: 在此添加命令处理程序代码
+	Standard_Real myWidth = 10, myThickness = 20, myHeight = 20;
+	gp_Pnt aPnt1(-myWidth / 2, 0, 0);
+	gp_Pnt aPnt2(-myWidth / 2, -myThickness / 4, 0);
+	gp_Pnt aPnt3(0, -myThickness / 2., 0);
+	gp_Pnt aPnt4(myWidth / 2, -myThickness / 4, 0);
+	gp_Pnt aPnt5(myWidth / 2, 0, 0);
+
+	//gp_Pnt aPnt1(-myWidth / 2., 0, 0);
+	//gp_Pnt aPnt2(-myWidth / 2., -myThickness / 4., 0);
+	//gp_Pnt aPnt3(0, -myThickness / 2., 0);
+	//gp_Pnt aPnt4(myWidth / 2., -myThickness / 4., 0);
+	//gp_Pnt aPnt5(myWidth / 2., 0, 0);
+
+	
+	Handle(Geom_TrimmedCurve) aSegment1 = GC_MakeSegment(aPnt1, aPnt2);
+	Handle(Geom_TrimmedCurve) aArcOfCircle = GC_MakeArcOfCircle(aPnt2, aPnt3, aPnt4);
+	Handle(Geom_TrimmedCurve) aSegment2 = GC_MakeSegment(aPnt4, aPnt5);
+
+	TopoDS_Edge aEdge1 = BRepBuilderAPI_MakeEdge(aSegment1);
+	TopoDS_Edge aEdge2 = BRepBuilderAPI_MakeEdge(aArcOfCircle);
+	TopoDS_Edge aEdge3 = BRepBuilderAPI_MakeEdge(aSegment2);
+
+	TopoDS_Wire aWire = BRepBuilderAPI_MakeWire(aEdge1, aEdge2, aEdge3);
+
+	//gp_Pnt aOrigin(0, 0, 0);
+	//gp_Dir xDir(1, 0, 0);
+	//gp_Ax1 xAxis(origin, xDir);
+	gp_Ax1 xAxis = gp::OX();
+	gp_Trsf aTrsf;
+	aTrsf.SetMirror(xAxis);
+	BRepBuilderAPI_Transform aBRepTrsf(aWire, aTrsf);
+	TopoDS_Shape aMirroredShape = aBRepTrsf.Shape();
+	TopoDS_Wire aMirroredWire = TopoDS::Wire(aMirroredShape);
+
+	BRepBuilderAPI_MakeWire myWire;
+	myWire.Add(aWire);
+	myWire.Add(aMirroredWire);
+	TopoDS_Wire myWireProfile = myWire.Wire();
+
+	displayShape(myWireProfile, Quantity_NOC_RED);
 }
