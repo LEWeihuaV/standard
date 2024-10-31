@@ -81,6 +81,7 @@ BEGIN_MESSAGE_MAP(CImportExportDoc, OCC_3dDoc)
 	ON_COMMAND(ID_OCCT_TMATHVECTOR, &CImportExportDoc::OnOcctTmathvector)
 	ON_COMMAND(ID_OCCT_TXBREPMESH, &CImportExportDoc::OnOcctTxbrepmesh)
 	ON_COMMAND(ID_OCCT_TUTORIAL, &CImportExportDoc::OnOcctTutorial)
+	ON_COMMAND(ID_OCCT_CHFI2D, &CImportExportDoc::OnOcctChfi2d)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -475,8 +476,8 @@ void CImportExportDoc::displayShapes(const std::vector<TopoDS_Shape>& shapes, co
 
 void CImportExportDoc::OnCadFilletwire()
 {
-	// TODO: 在此添加命令处理程序代码
-	// 创建两个顶点
+	//// TODO: 在此添加命令处理程序代码
+	//// 创建两个顶点
 	//gp_Pnt p1(0, 0, 0);
 	//gp_Pnt p2(10, 0, 0);
 	//gp_Pnt p3(10, 10, 0);
@@ -506,6 +507,9 @@ void CImportExportDoc::OnCadFilletwire()
 
 	//// 生成修改后的结果形状
 	//TopoDS_Shape result = fillet2d.Shape();
+
+	//// 显示形状
+	//displayShape(result, Quantity_NOC_GREEN);
 
 	// 创建边
 	gp_Pnt p1(0.0, 0.0, 0.0);
@@ -668,4 +672,48 @@ void CImportExportDoc::OnOcctTutorial()
 	TopoDS_Wire myWireProfile = myWire.Wire();
 
 	displayShape(myWireProfile, Quantity_NOC_RED);
+}
+
+
+void CImportExportDoc::OnOcctChfi2d()
+{
+	// TODO: 在此添加命令处理程序代码
+	// 创建矩形的四个顶点
+	gp_Pnt p1(0.0, 0.0, 0.0);
+	gp_Pnt p2(1.0, 0.0, 0.0);
+	gp_Pnt p3(1.0, 1.0, 0.0);
+	gp_Pnt p4(0.0, 1.0, 0.0);
+
+	// 创建矩形的四条边
+	TopoDS_Edge edge1 = BRepBuilderAPI_MakeEdge(p1, p2);
+	TopoDS_Edge edge2 = BRepBuilderAPI_MakeEdge(p2, p3);
+	TopoDS_Edge edge3 = BRepBuilderAPI_MakeEdge(p3, p4);
+	TopoDS_Edge edge4 = BRepBuilderAPI_MakeEdge(p4, p1);
+
+	// 将四条边组合成一个矩形框
+	TopoDS_Wire rectangle = BRepBuilderAPI_MakeWire(edge1, edge2, edge3, edge4);
+
+	// 设置圆角的平面
+	gp_Pln plane(gp_Ax2(gp_Pnt(0, 0, 0), gp_Dir(0, 0, 1)));
+
+	// 创建并初始化 ChFi2d_FilletAPI
+	ChFi2d_FilletAPI filletAPI(edge1, edge2, plane);
+	filletAPI.Init(edge1, edge2, plane);
+
+	// 设置圆角半径
+	Standard_Real radius = 0.2;
+
+	// 执行圆角操作
+	if (filletAPI.Perform(radius)) {
+		std::cout << "Fillet created successfully." << std::endl;
+
+		// 获取第一个结果
+		gp_Pnt commonPoint = p2; // 交点
+		TopoDS_Edge resultEdge = filletAPI.Result(commonPoint, edge1, edge2);
+
+		// 将结果显示
+		std::vector<TopoDS_Shape> shapes = { rectangle, resultEdge, edge1, edge2, edge3, edge4 };
+		std::vector<Quantity_Color> colors = { Quantity_NOC_BLUE1, Quantity_NOC_RED, Quantity_NOC_GREEN, Quantity_NOC_GREEN, Quantity_NOC_GREEN, Quantity_NOC_GREEN };
+		displayShapes(shapes, colors);
+	}
 }

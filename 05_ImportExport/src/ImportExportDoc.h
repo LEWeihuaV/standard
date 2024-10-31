@@ -63,6 +63,7 @@ public:
 	afx_msg void OnOcctTmathvector();
 	afx_msg void OnOcctTxbrepmesh();
 	afx_msg void OnOcctTutorial();
+	afx_msg void OnOcctChfi2d();
 };
 
 /////////////////////////////////////////////////////////////////////////////

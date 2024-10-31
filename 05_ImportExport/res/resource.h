@@ -16,6 +16,7 @@
 #define ID_OCCT_TMATHVECTOR             32815
 #define ID_OCCT_TXBREPMESH              32816
 #define ID_OCCT_TUTORIAL                32817
+#define ID_OCCT_CHFI2D                  32818
 #define ID_FILE_EXPORT_STL              32896
 #define ID_FILE_EXPORT_VRML             32897
 
@@ -25,7 +26,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        178
-#define _APS_NEXT_COMMAND_VALUE         32818
+#define _APS_NEXT_COMMAND_VALUE         32819
 #define _APS_NEXT_CONTROL_VALUE         1505
 #define _APS_NEXT_SYMED_VALUE           170
 #endif
