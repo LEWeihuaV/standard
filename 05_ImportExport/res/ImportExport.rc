@@ -177,6 +177,13 @@ BEGIN
         END
         MENUITEM "FilletWire",                  ID_CAD_FILLETWIRE
     END
+    POPUP "OCCT"
+    BEGIN
+        MENUITEM "TMathVector",                 ID_OCCT_TMATHVECTOR
+        MENUITEM "TXBRepMesh",                  ID_OCCT_TXBREPMESH
+        MENUITEM "Tutorial",                    ID_OCCT_TUTORIAL
+        MENUITEM "Chfi2d",                      ID_OCCT_CHFI2D
+    END
 END
 
 
