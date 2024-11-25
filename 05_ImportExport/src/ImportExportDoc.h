@@ -60,6 +60,8 @@ public:
 	void displayShape(const TopoDS_Shape& shape, const Quantity_Color& color);
 	void displayShapes(const std::vector<TopoDS_Shape>& shapes, const std::vector<Quantity_Color>& colors);
 	afx_msg void OnCadFilletwire();
+        afx_msg void OnCadCreateface();
+        afx_msg void OnCadNurbs();
 };
 
 /////////////////////////////////////////////////////////////////////////////

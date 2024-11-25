@@ -39,6 +39,15 @@
 #include <BRepFilletAPI_MakeFillet2d.hxx>
 #include <BRepBuilderAPI_MakeVertex.hxx>
 #include <ChFi2d_FilletAPI.hxx>
+#include <BRepBuilderAPI_MakeEdge.hxx>
+#include <BRepBuilderAPI_MakeFace.hxx>
+#include <BRepBuilderAPI_MakeWire.hxx>
+#include <gp_Pnt.hxx>
+#include <Geom_BSplineSurface.hxx>
+#include <TColStd_Array1OfInteger.hxx>
+#include <TColStd_Array1OfReal.hxx>
+#include <TColgp_Array2OfPnt.hxx>
+#include <GeomConvert.hxx>
 
 
 
@@ -72,7 +81,9 @@ BEGIN_MESSAGE_MAP(CImportExportDoc, OCC_3dDoc)
 	ON_COMMAND(ID_CAD_CHFI2D, &CImportExportDoc::OnCadChfi2d)
 	ON_COMMAND(ID_BSPLCLIB_BSPLCLIBINSTANCE, &CImportExportDoc::OnBsplclibBsplclibinstance)
 	ON_COMMAND(ID_CAD_FILLETWIRE, &CImportExportDoc::OnCadFilletwire)
-END_MESSAGE_MAP()
+        ON_COMMAND(ID_CAD_CREATEFACE, &CImportExportDoc::OnCadCreateface)
+        ON_COMMAND(ID_CAD_NURBS, &CImportExportDoc::OnCadNurbs)
+        END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
 // CImportExportDoc construction/destruction
@@ -520,4 +531,25 @@ void CImportExportDoc::OnCadFilletwire()
 		std::vector<Quantity_Color> colors = { Quantity_NOC_RED, Quantity_NOC_GREEN, Quantity_NOC_BLUE };
 		displayShapes(shapes, colors);
 	}
+}
+
+void CImportExportDoc::OnCadCreateface() {
+  // TODO: 在此添加命令处理程序代码
+  // 定义边界
+  TopoDS_Edge edge1 = BRepBuilderAPI_MakeEdge(gp_Pnt(0, 0, 0), gp_Pnt(1, 0, 0));
+  TopoDS_Edge edge2 = BRepBuilderAPI_MakeEdge(gp_Pnt(1, 0, 0), gp_Pnt(1, 1, 0));
+  TopoDS_Edge edge3 = BRepBuilderAPI_MakeEdge(gp_Pnt(1, 1, 0), gp_Pnt(0, 1, 0));
+  TopoDS_Edge edge4 = BRepBuilderAPI_MakeEdge(gp_Pnt(0, 1, 0), gp_Pnt(0, 0, 0));
+
+  // 连接为封闭的边界
+  TopoDS_Wire wire = BRepBuilderAPI_MakeWire(edge1, edge2, edge3, edge4);
+
+  // 使用边界生成面
+  TopoDS_Face face = BRepBuilderAPI_MakeFace(wire);
+
+  displayShape(face, Quantity_NOC_BLUE);
+}
+
+void CImportExportDoc::OnCadNurbs() {
+
 }
