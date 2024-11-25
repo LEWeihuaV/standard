@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ Éú³ÉµÄ°üº¬ÎÄ¼ş¡£
-// ¹© ImportExport.rc Ê¹ÓÃ
+// Microsoft Visual C++ ç”Ÿæˆçš„åŒ…å«æ–‡ä»¶ã€‚
+// ä¾› ImportExport.rc ä½¿ç”¨
 //
 #define ID_FILE_OPEN32803               32803
 #define ID_BOX                          32804
@@ -15,6 +15,10 @@
 #define ID_CAD_FILLETWIRE               32814
 #define ID_CAD_CREATEFACE               32815
 #define ID_CAD_NURBS                    32816
+#define ID_OCCT_TMATHVECTOR             32815
+#define ID_OCCT_TXBREPMESH              32816
+#define ID_OCCT_TUTORIAL                32817
+#define ID_OCCT_CHFI2D                  32818
 #define ID_FILE_EXPORT_STL              32896
 #define ID_FILE_EXPORT_VRML             32897
 
