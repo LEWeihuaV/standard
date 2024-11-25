@@ -541,12 +541,12 @@ void CImportExportDoc::OnCadCreateface() {
   TopoDS_Edge edge3 = BRepBuilderAPI_MakeEdge(gp_Pnt(1, 1, 0), gp_Pnt(0, 1, 0));
   TopoDS_Edge edge4 = BRepBuilderAPI_MakeEdge(gp_Pnt(0, 1, 0), gp_Pnt(0, 0, 0));
 
-  // 连接为封闭的边界
+  //// 连接为封闭的边界
   TopoDS_Wire wire = BRepBuilderAPI_MakeWire(edge1, edge2, edge3, edge4);
 
   // 使用边界生成面
   TopoDS_Face face = BRepBuilderAPI_MakeFace(wire);
-
+  //displayShape(wire, Quantity_NOC_YELLOW);
   displayShape(face, Quantity_NOC_BLUE);
 }
 
