@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ …˙≥…µƒ∞¸∫¨Œƒº˛°£
-// π© ImportExport.rc  π”√
+// Microsoft Visual C++ ÁîüÊàêÁöÑÂåÖÂê´Êñá‰ª∂„ÄÇ
+// ‰æõ ImportExport.rc ‰ΩøÁî®
 //
 #define ID_FILE_OPEN32803               32803
 #define ID_BOX                          32804
@@ -13,6 +13,8 @@
 #define ID_CAD_BSPLCLIB                 32812
 #define ID_BSPLCLIB_BSPLCLIBINSTANCE    32813
 #define ID_CAD_FILLETWIRE               32814
+#define ID_CAD_CREATEFACE               32815
+#define ID_CAD_NURBS                    32816
 #define ID_OCCT_TMATHVECTOR             32815
 #define ID_OCCT_TXBREPMESH              32816
 #define ID_OCCT_TUTORIAL                32817
@@ -26,7 +28,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        178
-#define _APS_NEXT_COMMAND_VALUE         32819
+#define _APS_NEXT_COMMAND_VALUE         32817
 #define _APS_NEXT_CONTROL_VALUE         1505
 #define _APS_NEXT_SYMED_VALUE           170
 #endif

@@ -41,7 +41,21 @@
 #include <TopoDS_Wire.hxx>
 #include <XBRepMesh.hxx>
 #include <gp_Pnt.hxx>
+#include <BRepBuilderAPI_MakeFace.hxx>
+#include <BRepFilletAPI_MakeFillet2d.hxx>
+#include <BRepBuilderAPI_MakeVertex.hxx>
+#include <ChFi2d_FilletAPI.hxx>
+#include <BRepBuilderAPI_MakeEdge.hxx>
+#include <BRepBuilderAPI_MakeFace.hxx>
+#include <BRepBuilderAPI_MakeWire.hxx>
+#include <gp_Pnt.hxx>
+#include <Geom_BSplineSurface.hxx>
+#include <TColStd_Array1OfInteger.hxx>
+#include <TColStd_Array1OfReal.hxx>
+#include <TColgp_Array2OfPnt.hxx>
+#include <GeomConvert.hxx>
 #include<Geom2d_Ellipse.hxx>
+
 using namespace std;
 
 #ifdef _DEBUG
@@ -56,21 +70,24 @@ static char THIS_FILE[] = __FILE__;
 IMPLEMENT_DYNCREATE(CImportExportDoc, OCC_3dDoc)
 
 BEGIN_MESSAGE_MAP(CImportExportDoc, OCC_3dDoc)
-//{{AFX_MSG_MAP(CImportExportDoc)
-ON_COMMAND(ID_FILE_IMPORT_BREP, OnFileImportBrep)
-ON_COMMAND(ID_FILE_IMPORT_IGES, OnFileImportIges)
-ON_COMMAND(ID_FILE_EXPORT_IGES, OnFileExportIges)
-ON_COMMAND(ID_FILE_IMPORT_STEP, OnFileImportStep)
-ON_COMMAND(ID_FILE_EXPORT_STEP, OnFileExportStep)
-ON_COMMAND(ID_FILE_EXPORT_VRML, OnFileExportVrml)
-ON_COMMAND(ID_FILE_EXPORT_STL, OnFileExportStl)
-ON_COMMAND(ID_BOX, OnBox)
-ON_COMMAND(ID_Cylinder, OnCylinder)
-ON_COMMAND(ID_OBJECT_REMOVE, OnObjectRemove)
-ON_COMMAND(ID_OBJECT_ERASE, OnObjectErase)
-ON_COMMAND(ID_OBJECT_DISPLAYALL, OnObjectDisplayall)
-//}}AFX_MSG_MAP
+	//{{AFX_MSG_MAP(CImportExportDoc)
+	ON_COMMAND(ID_FILE_IMPORT_BREP, OnFileImportBrep)
+	ON_COMMAND(ID_FILE_IMPORT_IGES, OnFileImportIges)
+	ON_COMMAND(ID_FILE_EXPORT_IGES, OnFileExportIges)
+	ON_COMMAND(ID_FILE_IMPORT_STEP, OnFileImportStep)
+	ON_COMMAND(ID_FILE_EXPORT_STEP, OnFileExportStep)
+	ON_COMMAND(ID_FILE_EXPORT_VRML, OnFileExportVrml)
+	ON_COMMAND(ID_FILE_EXPORT_STL, OnFileExportStl)
+	ON_COMMAND(ID_BOX, OnBox)
+	ON_COMMAND(ID_Cylinder, OnCylinder)
+	ON_COMMAND(ID_OBJECT_REMOVE, OnObjectRemove)
+	ON_COMMAND(ID_OBJECT_ERASE, OnObjectErase)
+	ON_COMMAND(ID_OBJECT_DISPLAYALL, OnObjectDisplayall)
+	//}}AFX_MSG_MAP
 
+        ON_COMMAND(ID_CAD_CREATEFACE, &CImportExportDoc::OnCadCreateface)
+        ON_COMMAND(ID_CAD_NURBS, &CImportExportDoc::OnCadNurbs)
+        END_MESSAGE_MAP()
 ON_COMMAND(ID_CAD_CHFI2D, &CImportExportDoc::OnCadChfi2d)
 ON_COMMAND(ID_BSPLCLIB_BSPLCLIBINSTANCE,
            &CImportExportDoc::OnBsplclibBsplclibinstance)
@@ -78,7 +95,6 @@ ON_COMMAND(ID_CAD_FILLETWIRE, &CImportExportDoc::OnCadFilletwire)
 ON_COMMAND(ID_OCCT_TMATHVECTOR, &CImportExportDoc::OnOcctTmathvector)
 ON_COMMAND(ID_OCCT_TXBREPMESH, &CImportExportDoc::OnOcctTxbrepmesh)
 ON_COMMAND(ID_OCCT_TUTORIAL, &CImportExportDoc::OnOcctTutorial)
-ON_COMMAND(ID_OCCT_CHFI2D, &CImportExportDoc::OnOcctChfi2d)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -306,8 +322,8 @@ void CImportExportDoc::OnObjectDisplayall()
 }
 
 void CImportExportDoc::OnCadChfi2d() {
-  // TODO: ÔÚ´ËÌí¼ÓÃüÁî´¦Àí³ÌĞò´úÂë
-  // TODO: ÔÚ´ËÌí¼ÓÃüÁî´¦Àí³ÌĞò´úÂë
+  // TODO: åœ¨æ­¤æ·»åŠ å‘½ä»¤å¤„ç†ç¨‹åºä»£ç 
+  // TODO: åœ¨æ­¤æ·»åŠ å‘½ä»¤å¤„ç†ç¨‹åºä»£ç 
   gp_Pnt p1(0.0, 0.0, 0.0);
   gp_Pnt p2(10.0, 0.0, 0.0);
   gp_Pnt p3(10.0, 0.0, 0.0);
@@ -354,38 +370,38 @@ void CImportExportDoc::OnCadChfi2d() {
 }
 
 void CImportExportDoc::OnBsplclibBsplclibinstance() {
-  // TODO: ÔÚ´ËÌí¼ÓÃüÁî´¦Àí³ÌĞò´úÂë
-  // ¶¨Òåµã
-  gp_Pnt p1(0.0, 0.0, 0.0);  // Ö±ÏßµÄÆğµã
-  gp_Pnt p2(10.0, 0.0, 0.0); // Ö±ÏßµÄÖÕµã£¬ÇúÏßµÄÆğµã
-  gp_Pnt p3(15.0, 5.0, 0.0); // ÇúÏßµÄ¿ØÖÆµã
-  gp_Pnt p4(20.0, 0.0, 0.0); // ÇúÏßµÄÖÕµã
+  // TODO: åœ¨æ­¤æ·»åŠ å‘½ä»¤å¤„ç†ç¨‹åºä»£ç 
+  // å®šä¹‰ç‚¹
+  gp_Pnt p1(0.0, 0.0, 0.0);  // ç›´çº¿çš„èµ·ç‚¹
+  gp_Pnt p2(10.0, 0.0, 0.0); // ç›´çº¿çš„ç»ˆç‚¹ï¼Œæ›²çº¿çš„èµ·ç‚¹
+  gp_Pnt p3(15.0, 5.0, 0.0); // æ›²çº¿çš„æ§åˆ¶ç‚¹
+  gp_Pnt p4(20.0, 0.0, 0.0); // æ›²çº¿çš„ç»ˆç‚¹
 
-  // ´´½¨Ö±Ïß¶Î
+  // åˆ›å»ºç›´çº¿æ®µ
   TopoDS_Edge lineEdge = BRepBuilderAPI_MakeEdge(p1, p2);
 
-  // ´´½¨Ò»Ìõ¼òµ¥µÄ Bezier ÇúÏß¶Î£¬Á¬½Óµã p2 ºÍ p4
+  // åˆ›å»ºä¸€æ¡ç®€å•çš„ Bezier æ›²çº¿æ®µï¼Œè¿æ¥ç‚¹ p2 å’Œ p4
   TColgp_Array1OfPnt curvePoints(1, 3);
-  curvePoints(1) = p2; // Ö±ÏßµÄÖÕµã£¬ÇúÏßµÄÆğµã
-  curvePoints(2) = p3; // ¿ØÖÆµã
-  curvePoints(3) = p4; // ÇúÏßµÄÖÕµã
+  curvePoints(1) = p2; // ç›´çº¿çš„ç»ˆç‚¹ï¼Œæ›²çº¿çš„èµ·ç‚¹
+  curvePoints(2) = p3; // æ§åˆ¶ç‚¹
+  curvePoints(3) = p4; // æ›²çº¿çš„ç»ˆç‚¹
 
   Handle(Geom_BezierCurve) bezierCurve = new Geom_BezierCurve(curvePoints);
   TopoDS_Edge curveEdge = BRepBuilderAPI_MakeEdge(bezierCurve);
 
-  // ½«Ö±Ïß¶ÎºÍÇúÏß¶Î×éºÏ³É¶à¶ÎÏß (Wire)
+  // å°†ç›´çº¿æ®µå’Œæ›²çº¿æ®µç»„åˆæˆå¤šæ®µçº¿ (Wire)
   BRepBuilderAPI_MakeWire wireBuilder;
   wireBuilder.Add(lineEdge);
   wireBuilder.Add(curveEdge);
 
-  // »ñÈ¡×îÖÕµÄ Wire ¶ÔÏó
+  // è·å–æœ€ç»ˆçš„ Wire å¯¹è±¡
   TopoDS_Wire wire = wireBuilder.Wire();
   displayShape(wire, Quantity_NOC_GREEN);
 }
 
 void CImportExportDoc::displayShape(const TopoDS_Shape &shape,
                                     const Quantity_Color &color) {
-  // Çå³ıÒÑÏÔÊ¾µÄ¶ÔÏó
+  // æ¸…é™¤å·²æ˜¾ç¤ºçš„å¯¹è±¡
   AIS_ListOfInteractive aList;
   myAISContext->DisplayedObjects(aList);
   AIS_ListIteratorOfListOfInteractive aListIterator;
@@ -394,14 +410,14 @@ void CImportExportDoc::displayShape(const TopoDS_Shape &shape,
     myAISContext->Remove(aListIterator.Value(), Standard_False);
   }
 
-  // ´´½¨ AIS_Shape ¶ÔÏó²¢ÉèÖÃÑÕÉ«
+  // åˆ›å»º AIS_Shape å¯¹è±¡å¹¶è®¾ç½®é¢œè‰²
   Handle(AIS_Shape) aisShape = new AIS_Shape(shape);
   aisShape->SetColor(color);
 
-  // ÏÔÊ¾ĞÎ×´
+  // æ˜¾ç¤ºå½¢çŠ¶
   myAISContext->Display(aisShape, Standard_True);
 
-  // µ÷ÕûÊÓÍ¼ÒÔÊÊÓ¦ĞÎ×´
+  // è°ƒæ•´è§†å›¾ä»¥é€‚åº”å½¢çŠ¶
   Fit();
   SetModifiedFlag(TRUE);
 
@@ -425,17 +441,17 @@ void CImportExportDoc::displayShapes(
     return;
   }
 
-  // Ñ­»·±éÀúËùÓĞµÄĞÎ×´
+  // å¾ªç¯éå†æ‰€æœ‰çš„å½¢çŠ¶
   for (size_t i = 0; i < shapes.size(); ++i) {
-    // ´´½¨ AIS_Shape ¶ÔÏó²¢ÉèÖÃÑÕÉ«
+    // åˆ›å»º AIS_Shape å¯¹è±¡å¹¶è®¾ç½®é¢œè‰²
     Handle(AIS_Shape) aisShape = new AIS_Shape(shapes[i]);
     aisShape->SetColor(colors[i]);
 
-    // ÏÔÊ¾ĞÎ×´
+    // æ˜¾ç¤ºå½¢çŠ¶
     myAISContext->Display(aisShape, Standard_True);
   }
 
-  // µ÷ÕûÊÓÍ¼ÒÔÊÊÓ¦ËùÓĞĞÎ×´
+  // è°ƒæ•´è§†å›¾ä»¥é€‚åº”æ‰€æœ‰å½¢çŠ¶
   Fit();
   SetModifiedFlag(TRUE);
 
@@ -443,8 +459,8 @@ void CImportExportDoc::displayShapes(
 }
 
 void CImportExportDoc::OnCadFilletwire() {
-  //// TODO: ÔÚ´ËÌí¼ÓÃüÁî´¦Àí³ÌĞò´úÂë
-  //// ´´½¨Á½¸ö¶¥µã
+  //// TODO: åœ¨æ­¤æ·»åŠ å‘½ä»¤å¤„ç†ç¨‹åºä»£ç 
+  //// åˆ›å»ºä¸¤ä¸ªé¡¶ç‚¹
   // gp_Pnt p1(0, 0, 0);
   // gp_Pnt p2(10, 0, 0);
   // gp_Pnt p3(10, 10, 0);
@@ -453,52 +469,52 @@ void CImportExportDoc::OnCadFilletwire() {
   // TopoDS_Vertex V2 = BRepBuilderAPI_MakeVertex(p2);
   // TopoDS_Vertex V3 = BRepBuilderAPI_MakeVertex(p3);
 
-  //// ´´½¨Ò»Ìõ±ß
+  //// åˆ›å»ºä¸€æ¡è¾¹
   // TopoDS_Edge edge1 = BRepBuilderAPI_MakeEdge(V1, V2);
   // TopoDS_Edge edge2 = BRepBuilderAPI_MakeEdge(V2, V3);
 
-  //// ´´½¨Ò»ÌõÏß¶Î¹¹³ÉµÄ±ÕºÏÏßÈ¦
+  //// åˆ›å»ºä¸€æ¡çº¿æ®µæ„æˆçš„é—­åˆçº¿åœˆ
   // TopoDS_Wire wire = BRepBuilderAPI_MakeWire(edge1, edge2);
 
-  //// ´´½¨Ò»¸öÃæ
+  //// åˆ›å»ºä¸€ä¸ªé¢
   // TopoDS_Face face = BRepBuilderAPI_MakeFace(wire);
 
-  //// ´´½¨2Dµ¹½Ç¶ÔÏó²¢³õÊ¼»¯
+  //// åˆ›å»º2Då€’è§’å¯¹è±¡å¹¶åˆå§‹åŒ–
   // BRepFilletAPI_MakeFillet2d fillet2d(face);
 
-  //// Ìí¼Óµ¹½Ç£¬µ¹½Ç°ë¾¶Îª 1.0
+  //// æ·»åŠ å€’è§’ï¼Œå€’è§’åŠå¾„ä¸º 1.0
   // TopoDS_Edge filletEdge = fillet2d.AddFillet(V2, 1.0);
 
-  //// ÏÖÔÚ£¬ĞŞ¸Äµ¹½ÇµÄ°ë¾¶Îª 2.0
+  //// ç°åœ¨ï¼Œä¿®æ”¹å€’è§’çš„åŠå¾„ä¸º 2.0
   // TopoDS_Edge modifiedFilletEdge = fillet2d.ModifyFillet(filletEdge, 2.0);
 
-  //// Éú³ÉĞŞ¸ÄºóµÄ½á¹ûĞÎ×´
+  //// ç”Ÿæˆä¿®æ”¹åçš„ç»“æœå½¢çŠ¶
   // TopoDS_Shape result = fillet2d.Shape();
 
-  //// ÏÔÊ¾ĞÎ×´
+  //// æ˜¾ç¤ºå½¢çŠ¶
   // displayShape(result, Quantity_NOC_GREEN);
 
-  // ´´½¨±ß
+  // åˆ›å»ºè¾¹
   gp_Pnt p1(0.0, 0.0, 0.0);
   gp_Pnt p2(1.0, 0.0, 0.0);
   gp_Pnt p3(1.0, 1.0, 0.0);
   TopoDS_Edge edge1 = BRepBuilderAPI_MakeEdge(p1, p2);
   TopoDS_Edge edge2 = BRepBuilderAPI_MakeEdge(p2, p3);
-  // ´´½¨Ò»¸öÆ½Ãæ
+  // åˆ›å»ºä¸€ä¸ªå¹³é¢
   gp_Pln plane(gp_Ax2(gp_Pnt(0, 0, 0), gp_Dir(0, 0, 1)));
-  // Ê¹ÓÃ ChFi2d_FilletAPI ´´½¨Ô²½Ç
+  // ä½¿ç”¨ ChFi2d_FilletAPI åˆ›å»ºåœ†è§’
   ChFi2d_FilletAPI filletAPI(edge1, edge2, plane);
-  // ³õÊ¼»¯Ëã·¨
+  // åˆå§‹åŒ–ç®—æ³•
   filletAPI.Init(edge1, edge2, plane);
-  // ÉèÖÃÔ²½Ç°ë¾¶
+  // è®¾ç½®åœ†è§’åŠå¾„
   Standard_Real radius = 0.2;
-  // Ö´ĞĞÔ²½Ç²Ù×÷
+  // æ‰§è¡Œåœ†è§’æ“ä½œ
   if (filletAPI.Perform(radius)) {
     std::cout << "Fillet created successfully." << std::endl;
-    // »ñÈ¡µÚÒ»¸ö½á¹û
-    gp_Pnt commonPoint = p2; // ½»µã
+    // è·å–ç¬¬ä¸€ä¸ªç»“æœ
+    gp_Pnt commonPoint = p2; // äº¤ç‚¹
     TopoDS_Edge resultEdge = filletAPI.Result(commonPoint, edge1, edge2);
-    // ÔÚÕâÀï¿ÉÒÔ¶Ô resultEdge ½øĞĞ½øÒ»²½´¦Àí£¬±ÈÈç»æÖÆ»ò´æ´¢
+    // åœ¨è¿™é‡Œå¯ä»¥å¯¹ resultEdge è¿›è¡Œè¿›ä¸€æ­¥å¤„ç†ï¼Œæ¯”å¦‚ç»˜åˆ¶æˆ–å­˜å‚¨
     std::cout << "Resulting fillet edge created." << std::endl;
     // std::vector<TopoDS_Shape> shapes = { shape1, shape2, shape3 };
     // std::vector<Quantity_Color> colors = { Quantity_NOC_RED,
@@ -511,86 +527,86 @@ void CImportExportDoc::OnCadFilletwire() {
 }
 
 void CImportExportDoc::OnOcctTmathvector() {
-  // TODO: ÔÚ´ËÌí¼ÓÃüÁî´¦Àí³ÌĞò´úÂë
+  // TODO: åœ¨æ­¤æ·»åŠ å‘½ä»¤å¤„ç†ç¨‹åºä»£ç 
   math_Vector vecotrOne(2, 2);
   math_Vector vectorTwo(0, 2);
   math_Vector result = vecotrOne - vectorTwo;
   std::cout << result;
-  // ½«½á¹û×ª»»Îª×Ö·û´®
+  // å°†ç»“æœè½¬æ¢ä¸ºå­—ç¬¦ä¸²
   std::ostringstream oss;
-  oss << result; // ¼ÙÉèÄãµÄ math_Vector ÓĞÖØÔØµÄÊä³öÔËËã·û
+  oss << result; // å‡è®¾ä½ çš„ math_Vector æœ‰é‡è½½çš„è¾“å‡ºè¿ç®—ç¬¦
   CString resultStr = CString(oss.str().c_str());
 
-  // µ¯³öÏûÏ¢¿òÏÔÊ¾½á¹û
+  // å¼¹å‡ºæ¶ˆæ¯æ¡†æ˜¾ç¤ºç»“æœ
   AfxMessageBox(resultStr);
 }
 
 void CImportExportDoc::OnOcctTxbrepmesh() {
-  // TODO: ÔÚ´ËÌí¼ÓÃüÁî´¦Àí³ÌĞò´úÂë
-  // ´´½¨Ò»¸öÁ¢·½Ìå£¬±ß³¤Îª1.0
+  // TODO: åœ¨æ­¤æ·»åŠ å‘½ä»¤å¤„ç†ç¨‹åºä»£ç 
+  // åˆ›å»ºä¸€ä¸ªç«‹æ–¹ä½“ï¼Œè¾¹é•¿ä¸º1.0
   TopoDS_Shape cube = BRepPrimAPI_MakeBox(1.0, 1.0, 1.0);
 
-  // STEP ÎÄ¼şÂ·¾¶
+  // STEP æ–‡ä»¶è·¯å¾„
   const std::string stepFilePath = "C:\\Users\\leweihua\\Downloads\\Lidar.STEP";
 
-  // ´´½¨ STEP ¶ÁÈ¡Æ÷
+  // åˆ›å»º STEP è¯»å–å™¨
   STEPControl_Reader reader;
 
-  // ¶ÁÈ¡ STEP ÎÄ¼ş
+  // è¯»å– STEP æ–‡ä»¶
   if (reader.ReadFile(stepFilePath.c_str()) != IFSelect_RetDone) {
     return;
   }
 
-  // ×ª»»µ½ OCCT ĞÎ×´
+  // è½¬æ¢åˆ° OCCT å½¢çŠ¶
   Standard_Integer nbs = reader.NbRootsForTransfer();
   for (Standard_Integer i = 1; i <= nbs; i++) {
     reader.TransferRoot(i);
   }
   TopoDS_Shape shape = reader.OneShape();
 
-  // ¶¨ÒåÀëÉ¢»¯²ÎÊı
-  Standard_Real deflection = 0.01; // ÔÊĞíµÄÆ«²î
-  Standard_Real angle = 5.0;       // ÔÊĞíµÄ½Ç¶ÈÆ«²î
+  // å®šä¹‰ç¦»æ•£åŒ–å‚æ•°
+  Standard_Real deflection = 0.01; // å…è®¸çš„åå·®
+  Standard_Real angle = 5.0;       // å…è®¸çš„è§’åº¦åå·®
 
   BRepMesh_DiscretRoot *algo = nullptr;
-  // µ÷ÓÃÀëÉ¢»¯º¯Êı
+  // è°ƒç”¨ç¦»æ•£åŒ–å‡½æ•°
   Standard_Integer status = XBRepMesh::Discret(shape, deflection, angle, algo);
 
-  // ¼ì²éÀëÉ¢»¯×´Ì¬
+  // æ£€æŸ¥ç¦»æ•£åŒ–çŠ¶æ€
   if (status == 0) {
-    string result = "Á¢·½ÌåÀëÉ¢»¯³É¹¦£¡";
-    // ½«½á¹û×ª»»Îª×Ö·û´®
+    string result = "ç«‹æ–¹ä½“ç¦»æ•£åŒ–æˆåŠŸï¼";
+    // å°†ç»“æœè½¬æ¢ä¸ºå­—ç¬¦ä¸²
     std::ostringstream oss;
-    oss << result; // ¼ÙÉèÄãµÄ math_Vector ÓĞÖØÔØµÄÊä³öÔËËã·û
+    oss << result; // å‡è®¾ä½ çš„ math_Vector æœ‰é‡è½½çš„è¾“å‡ºè¿ç®—ç¬¦
     CString resultStr = CString(oss.str().c_str());
 
-    // µ¯³öÏûÏ¢¿òÏÔÊ¾½á¹û
+    // å¼¹å‡ºæ¶ˆæ¯æ¡†æ˜¾ç¤ºç»“æœ
     AfxMessageBox(resultStr);
 
-    // ´¦ÀíÀëÉ¢»¯½á¹û£¬±ÈÈç»ñÈ¡Éú³ÉµÄÍø¸ñ
-    // algo->GetMesh() µÈ·½·¨¿ÉÒÔÓÃÓÚ»ñÈ¡Éú³ÉµÄÍø¸ñ
-    // »ñÈ¡Éú³ÉµÄÍø¸ñ
-    TopoDS_Shape meshShape = algo->Shape(); // ¼ÙÉèÕâ¸ö·½·¨¿ÉÓÃ
+    // å¤„ç†ç¦»æ•£åŒ–ç»“æœï¼Œæ¯”å¦‚è·å–ç”Ÿæˆçš„ç½‘æ ¼
+    // algo->GetMesh() ç­‰æ–¹æ³•å¯ä»¥ç”¨äºè·å–ç”Ÿæˆçš„ç½‘æ ¼
+    // è·å–ç”Ÿæˆçš„ç½‘æ ¼
+    TopoDS_Shape meshShape = algo->Shape(); // å‡è®¾è¿™ä¸ªæ–¹æ³•å¯ç”¨
 
-    // ÉèÖÃÍø¸ñµÄÑÕÉ«£¨ÀıÈç£¬À¶É«£©
+    // è®¾ç½®ç½‘æ ¼çš„é¢œè‰²ï¼ˆä¾‹å¦‚ï¼Œè“è‰²ï¼‰
     Quantity_Color meshColor(0.0, 0.0, 1.0, Quantity_TOC_RGB);
 
-    // ÏÔÊ¾Íø¸ñ
+    // æ˜¾ç¤ºç½‘æ ¼
     displayShape(meshShape, meshColor);
   } else {
-    string result = "ÀëÉ¢»¯Ê§°Ü£¬´íÎó´úÂë: ";
-    // ½«½á¹û×ª»»Îª×Ö·û´®
+    string result = "ç¦»æ•£åŒ–å¤±è´¥ï¼Œé”™è¯¯ä»£ç : ";
+    // å°†ç»“æœè½¬æ¢ä¸ºå­—ç¬¦ä¸²
     std::ostringstream oss;
-    oss << result; // ¼ÙÉèÄãµÄ math_Vector ÓĞÖØÔØµÄÊä³öÔËËã·û
+    oss << result; // å‡è®¾ä½ çš„ math_Vector æœ‰é‡è½½çš„è¾“å‡ºè¿ç®—ç¬¦
     CString resultStr = CString(oss.str().c_str());
   }
 
-  // ÇåÀí
+  // æ¸…ç†
   delete algo;
 }
 
 void CImportExportDoc::OnOcctTutorial() {
-  // TODO: ÔÚ´ËÌí¼ÓÃüÁî´¦Àí³ÌĞò´úÂë
+  // TODO: åœ¨æ­¤æ·»åŠ å‘½ä»¤å¤„ç†ç¨‹åºä»£ç 
   Standard_Real myWidth = 10, myThickness = 20, myHeight = 20;
   gp_Pnt aPnt1(-myWidth / 2, 0, 0);
   gp_Pnt aPnt2(-myWidth / 2, -myThickness / 4, 0);
@@ -666,7 +682,7 @@ void CImportExportDoc::OnOcctTutorial() {
   for (TopExp_Explorer aFaceExplorer(myBody, TopAbs_FACE); aFaceExplorer.More();
        aFaceExplorer.Next()) {
     TopoDS_Face aFace = TopoDS::Face(aFaceExplorer.Current());
-    // Check if <aFace> is the top face of the bottle’s neck
+    // Check if <aFace> is the top face of the bottleæŠ¯ neck
     Handle(Geom_Surface) aSurface = BRep_Tool::Surface(aFace);
     if (aSurface->DynamicType() == STANDARD_TYPE(Geom_Plane)) {
       Handle(Geom_Plane) aPlane = Handle(Geom_Plane)::DownCast(aSurface);
@@ -747,41 +763,41 @@ void CImportExportDoc::OnOcctTutorial() {
 }
 
 void CImportExportDoc::OnOcctChfi2d() {
-  // TODO: ÔÚ´ËÌí¼ÓÃüÁî´¦Àí³ÌĞò´úÂë
-  // ´´½¨¾ØĞÎµÄËÄ¸ö¶¥µã
+  // TODO: åœ¨æ­¤æ·»åŠ å‘½ä»¤å¤„ç†ç¨‹åºä»£ç 
+  // åˆ›å»ºçŸ©å½¢çš„å››ä¸ªé¡¶ç‚¹
   gp_Pnt p1(0.0, 0.0, 0.0);
   gp_Pnt p2(1.0, 0.0, 0.0);
   gp_Pnt p3(1.0, 1.0, 0.0);
   gp_Pnt p4(0.0, 1.0, 0.0);
 
-  // ´´½¨¾ØĞÎµÄËÄÌõ±ß
+  // åˆ›å»ºçŸ©å½¢çš„å››æ¡è¾¹
   TopoDS_Edge edge1 = BRepBuilderAPI_MakeEdge(p1, p2);
   TopoDS_Edge edge2 = BRepBuilderAPI_MakeEdge(p2, p3);
   TopoDS_Edge edge3 = BRepBuilderAPI_MakeEdge(p3, p4);
   TopoDS_Edge edge4 = BRepBuilderAPI_MakeEdge(p4, p1);
 
-  // ½«ËÄÌõ±ß×éºÏ³ÉÒ»¸ö¾ØĞÎ¿ò
+  // å°†å››æ¡è¾¹ç»„åˆæˆä¸€ä¸ªçŸ©å½¢æ¡†
   TopoDS_Wire rectangle = BRepBuilderAPI_MakeWire(edge1, edge2, edge3, edge4);
 
-  // ÉèÖÃÔ²½ÇµÄÆ½Ãæ
+  // è®¾ç½®åœ†è§’çš„å¹³é¢
   gp_Pln plane(gp_Ax2(gp_Pnt(0, 0, 0), gp_Dir(0, 0, 1)));
 
-  // ´´½¨²¢³õÊ¼»¯ ChFi2d_FilletAPI
+  // åˆ›å»ºå¹¶åˆå§‹åŒ– ChFi2d_FilletAPI
   ChFi2d_FilletAPI filletAPI(edge1, edge2, plane);
   filletAPI.Init(edge1, edge2, plane);
 
-  // ÉèÖÃÔ²½Ç°ë¾¶
+  // è®¾ç½®åœ†è§’åŠå¾„
   Standard_Real radius = 0.2;
 
-  // Ö´ĞĞÔ²½Ç²Ù×÷
+  // æ‰§è¡Œåœ†è§’æ“ä½œ
   if (filletAPI.Perform(radius)) {
     std::cout << "Fillet created successfully." << std::endl;
 
-    // »ñÈ¡µÚÒ»¸ö½á¹û
-    gp_Pnt commonPoint = p2; // ½»µã
+    // è·å–ç¬¬ä¸€ä¸ªç»“æœ
+    gp_Pnt commonPoint = p2; // äº¤ç‚¹
     TopoDS_Edge resultEdge = filletAPI.Result(commonPoint, edge1, edge2);
 
-    // ½«½á¹ûÏÔÊ¾
+    // å°†ç»“æœæ˜¾ç¤º
     std::vector<TopoDS_Shape> shapes = {rectangle, resultEdge, edge1,
                                         edge2,     edge3,      edge4};
     std::vector<Quantity_Color> colors = {
@@ -789,4 +805,25 @@ void CImportExportDoc::OnOcctChfi2d() {
         Quantity_NOC_GREEN, Quantity_NOC_GREEN, Quantity_NOC_GREEN};
     displayShapes(shapes, colors);
   }
+}
+
+void CImportExportDoc::OnCadCreateface() {
+  // TODO: åœ¨æ­¤æ·»åŠ å‘½ä»¤å¤„ç†ç¨‹åºä»£ç 
+  // å®šä¹‰è¾¹ç•Œ
+  TopoDS_Edge edge1 = BRepBuilderAPI_MakeEdge(gp_Pnt(0, 0, 0), gp_Pnt(1, 0, 0));
+  TopoDS_Edge edge2 = BRepBuilderAPI_MakeEdge(gp_Pnt(1, 0, 0), gp_Pnt(1, 1, 0));
+  TopoDS_Edge edge3 = BRepBuilderAPI_MakeEdge(gp_Pnt(1, 1, 0), gp_Pnt(0, 1, 0));
+  TopoDS_Edge edge4 = BRepBuilderAPI_MakeEdge(gp_Pnt(0, 1, 0), gp_Pnt(0, 0, 0));
+
+  //// è¿æ¥ä¸ºå°é—­çš„è¾¹ç•Œ
+  TopoDS_Wire wire = BRepBuilderAPI_MakeWire(edge1, edge2, edge3, edge4);
+
+  // ä½¿ç”¨è¾¹ç•Œç”Ÿæˆé¢
+  TopoDS_Face face = BRepBuilderAPI_MakeFace(wire);
+  //displayShape(wire, Quantity_NOC_YELLOW);
+  displayShape(face, Quantity_NOC_BLUE);
+}
+
+void CImportExportDoc::OnCadNurbs() {
+
 }

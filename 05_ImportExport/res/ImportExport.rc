@@ -176,6 +176,8 @@ BEGIN
             MENUITEM "BSplCLibInstance",            ID_BSPLCLIB_BSPLCLIBINSTANCE
         END
         MENUITEM "FilletWire",                  ID_CAD_FILLETWIRE
+        MENUITEM "CreateFace",                  ID_CAD_CREATEFACE
+        MENUITEM "NURBS",                       ID_CAD_NURBS
     END
     POPUP "OCCT"
     BEGIN
